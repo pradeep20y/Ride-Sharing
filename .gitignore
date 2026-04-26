@@ -1,0 +1,116 @@
+# ===========================
+# COMPILED OUTPUT
+# ===========================
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# ===========================
+# MAVEN
+# ===========================
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# ===========================
+# GRADLE
+# ===========================
+.gradle/
+gradle-app.setting
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# ===========================
+# SPRING BOOT / APPLICATION CONFIG
+# ===========================
+# Ignore local overrides — never commit secrets
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+application-prod.properties
+application-prod.yml
+*.env
+.env
+.env.*
+
+# ===========================
+# LOGS
+# ===========================
+logs/
+*.log
+*.log.*
+spring.log
+
+# ===========================
+# IDE — INTELLIJ
+# ===========================
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# ===========================
+# IDE — ECLIPSE / STS
+# ===========================
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+bin/
+
+# ===========================
+# IDE — VS CODE
+# ===========================
+.vscode/
+!.vscode/extensions.json
+
+# ===========================
+# OS FILES
+# ===========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ===========================
+# DOCKER
+# ===========================
+# Keep docker-compose.yml but ignore overrides with secrets
+docker-compose.override.yml
+docker-compose.local.yml
+.docker/
+
+# ===========================
+# REDIS
+# ===========================
+dump.rdb
+appendonly.aof
+redis.log
+*.rdb
+*.aof
+
+# ===========================
+# SECRETS / CREDENTIALS
+# ===========================
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.truststore
+secrets/
+credentials/
