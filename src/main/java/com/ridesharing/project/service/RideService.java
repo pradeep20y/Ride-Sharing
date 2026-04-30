@@ -164,4 +164,52 @@ public class RideService {
 
         return rideRepository.findByPassenger(passenger);
     }
+
+    @Transactional
+    public Ride acceptRide(String requestId, String driverId) {
+
+        RideRequest rideRequest = rideRequestRepository
+                .findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", requestId));
+
+        Driver driver = driverRepository
+                .findById(driverId)
+                .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", requestId));
+
+        // Guard against race condition where two drivers accept simultaneously
+        if (!rideRequest.getStatus().equals("Open")) {
+            throw new ResourceNotFoundException("RideRequest", "id", requestId);
+        }
+
+        rideRequest.setStatus("Matched");
+        rideRequestRepository.save(rideRequest);
+
+        driver.setStatus("ON_TRIP");
+        driverRepository.save(driver);
+
+        Ride ride = new Ride();
+        ride.setRideRequest(rideRequest);
+        ride.setPassenger(rideRequest.getPassenger());
+        ride.setDriver(driver);
+        ride.setStatus("Assigned");
+        ride.setFare(rideRequest.getEstimatedFare());
+
+        return rideRepository.save(ride);
+    }
+
+    // Handles driver location update during an active ride
+// Updates Redis and returns the ride for the controller to use
+    public Ride getRideIfActive(String rideId) {
+
+        Ride ride = rideRepository
+                .findById(rideId)
+                .orElseThrow(() -> new RuntimeException("Ride not found"));
+
+        if (!ride.getStatus().equals("InProgress") &&
+                !ride.getStatus().equals("Assigned")) {
+            throw new RuntimeException("Ride is not active");
+        }
+
+        return ride;
+    }
 }
