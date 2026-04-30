@@ -48,7 +48,7 @@ import java.util.List;
  *       their own profile, and only admins can delete or manually set ratings.
  */
 @RestController
-@RequestMapping("/api/drivers")
+@RequestMapping("/drivers")
 @CrossOrigin(origins = "*")
 @Tag(name = "Drivers", description = "Operations for managing driver profiles — registration, status, location, vehicle, and ratings")
 public class DriverController {
