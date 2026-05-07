@@ -4,6 +4,7 @@ import com.ridesharing.project.entity.Driver;
 import com.ridesharing.project.entity.Passenger;
 import com.ridesharing.project.entity.Ride;
 import com.ridesharing.project.entity.RideRequest;
+import com.ridesharing.project.entity.RideRequestStatus;
 import com.ridesharing.project.exception.BusinessException;
 import com.ridesharing.project.exception.ResourceNotFoundException;
 import com.ridesharing.project.repository.DriverRepository;
@@ -41,7 +42,7 @@ public class RideService {
         RideRequest rideRequest = rideRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", requestId));
 
-        if (!"Open".equals(rideRequest.getStatus())) {
+        if (rideRequest.getStatus() != RideRequestStatus.OPEN) {
             throw new BusinessException("Ride request is not available for assignment. Current status: " + rideRequest.getStatus());
         }
 
@@ -62,8 +63,8 @@ public class RideService {
         // Copy the estimated fare from the request so driver and passenger agreed on the same figure
         ride.setFare(rideRequest.getEstimatedFare());
 
-        // Mark the request as Matched to prevent it from being assigned to a second driver
-        rideRequest.setStatus("Matched");
+        // Mark the request as MATCHED to prevent it from being assigned to a second driver
+        rideRequest.setStatus(RideRequestStatus.MATCHED);
         rideRequestRepository.save(rideRequest);
 
         // Put the driver on-trip so they no longer appear in the available pool
@@ -110,9 +111,9 @@ public class RideService {
         driver.setStatus("ONLINE");
         driverRepository.save(driver);
 
-        // Sync the originating ride request to Completed for history consistency
+        // Sync the originating ride request to COMPLETED for history consistency
         RideRequest rideRequest = ride.getRideRequest();
-        rideRequest.setStatus("Completed");
+        rideRequest.setStatus(RideRequestStatus.COMPLETED);
         rideRequestRepository.save(rideRequest);
 
         return rideRepository.save(ride);
@@ -135,9 +136,9 @@ public class RideService {
         driver.setStatus("ONLINE");
         driverRepository.save(driver);
 
-        // Revert the ride request to Cancelled so it cannot be reassigned or completed
+        // Revert the ride request to CANCELLED so it cannot be reassigned or completed
         RideRequest rideRequest = ride.getRideRequest();
-        rideRequest.setStatus("Cancelled");
+        rideRequest.setStatus(RideRequestStatus.CANCELLED);
         rideRequestRepository.save(rideRequest);
 
         return rideRepository.save(ride);
@@ -177,11 +178,11 @@ public class RideService {
                 .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", requestId));
 
         // Guard against race condition where two drivers accept simultaneously
-        if (!rideRequest.getStatus().equals("Open")) {
+        if (rideRequest.getStatus() != RideRequestStatus.OPEN) {
             throw new ResourceNotFoundException("RideRequest", "id", requestId);
         }
 
-        rideRequest.setStatus("Matched");
+        rideRequest.setStatus(RideRequestStatus.MATCHED);
         rideRequestRepository.save(rideRequest);
 
         driver.setStatus("ON_TRIP");
