@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.ridesharing.project.entity.RideRequestStatus;
 
 import java.time.LocalDateTime;
 
@@ -25,7 +26,7 @@ public class RideRequestResponse {
     private Double dropoffLongitude;
     private String dropoffAddress;
     private String rideType;
-    private String status;
+    private RideRequestStatus status;
     private Double estimatedFare;
     private Double estimatedDistance;
     private Integer estimatedDuration;
