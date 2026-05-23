@@ -190,6 +190,14 @@ public class RideMatchingService {
             return;
         }
 
+        // Notify the driver whose offer just timed out so their UI can react immediately.
+        // This covers the normal expiry path (Redis TTL fired → OfferExpiryListener).
+        // The race-condition path (driver sent ACCEPT just as the key expired) is handled
+        // separately in WebSocketController via the OptimisticLockException catch block.
+        if (request.getOfferedToDriverId() != null) {
+            rideNotificationService.notifyDriverOfferExpired(request.getOfferedToDriverId());
+        }
+
         // If all allowed attempts are exhausted, cancel the request and notify the passenger
         if (request.getOfferAttempts() >= MAX_OFFER_ATTEMPTS) {
             request.setStatus(RideRequestStatus.CANCELLED);
