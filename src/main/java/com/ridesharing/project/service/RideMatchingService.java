@@ -135,7 +135,7 @@ public class RideMatchingService {
         ride.setStatus("Assigned");
         ride.setFare(request.getEstimatedFare());
 
-        // Mark the driver as ON_TRIP so they no longer appear in nearby-driver searches
+        // Mark the driver as ON_TRIP so they no longer appear in nearby-driver searches.done
         driver.setStatus("ON_TRIP");
         driverRepository.save(driver);
 
