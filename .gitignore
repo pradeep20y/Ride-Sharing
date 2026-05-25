@@ -114,3 +114,5 @@ redis.log
 *.truststore
 secrets/
 credentials/
+
+.claude/
