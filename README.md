@@ -18,6 +18,7 @@ A production-ready ride-sharing backend built with **Spring Boot 3**, featuring 
 - [Driver Matching Algorithm](#driver-matching-algorithm)
 - [Offer Expiry Flow](#offer-expiry-flow)
 - [Project Structure](#project-structure)
+- [Ride Request Status Flow](#ride-request-status-flow)
 
 ---
 
@@ -30,7 +31,7 @@ This backend powers a ride-sharing platform where passengers request rides and d
 ## Features
 
 ### Core
-- **User Management** — Create and manage users with roles (DRIVER / PASSENGER)
+- **User Management** — Create and manage users with roles (`DRIVER` / `PASSENGER`)
 - **Driver Profiles** — Registration, vehicle info, availability status, ratings, earnings tracking
 - **Passenger Profiles** — Profile creation, wallet balance management
 
@@ -55,7 +56,7 @@ This backend powers a ride-sharing platform where passengers request rides and d
 - Driver status automatically returns to `ONLINE` after trip ends
 
 ### Payment
-- Payment record created for completed rides
+- Payment record created on ride completion
 - Transitions: `Pending → Success` or `Pending → Failed`
 - Duplicate payment prevention
 
@@ -69,7 +70,7 @@ This backend powers a ride-sharing platform where passengers request rides and d
 ## Tech Stack
 
 | Layer | Technology |
-|---|---|
+| --- | --- |
 | Framework | Spring Boot 3.5 |
 | Language | Java 17 |
 | Database | MySQL 8 |
@@ -143,7 +144,7 @@ cd ridesharing-backend/project
 
 ### 3. Enable Redis Keyspace Notifications
 
-This is required for the 10-second offer expiry to work:
+Required for the 10-second offer expiry to work:
 
 ```bash
 redis-cli CONFIG SET notify-keyspace-events KEA
@@ -181,7 +182,7 @@ http://localhost:8082/api/swagger-ui.html
 ## Configuration
 
 | Property | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `server.port` | `8082` | Server port |
 | `server.servlet.context-path` | `/api` | Base path for all endpoints |
 | `spring.datasource.url` | `localhost:3306/ridesharing` | MySQL connection |
@@ -198,84 +199,84 @@ All endpoints are documented interactively at `http://localhost:8082/api/swagger
 ### Users — `/api/users`
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/users` | Create a new user |
-| GET | `/users` | Get all users |
-| GET | `/users/{id}` | Get user by ID |
-| GET | `/users/email/{email}` | Get user by email |
-| GET | `/users/type/passenger` | Get all passengers |
-| GET | `/users/type/driver` | Get all drivers |
-| PUT | `/users/{id}` | Update user |
-| DELETE | `/users/{id}` | Delete user |
+| --- | --- | --- |
+| `POST` | `/users` | Create a new user |
+| `GET` | `/users` | Get all users |
+| `GET` | `/users/{id}` | Get user by ID |
+| `GET` | `/users/email/{email}` | Get user by email |
+| `GET` | `/users/type/passenger` | Get all passengers |
+| `GET` | `/users/type/driver` | Get all drivers |
+| `PUT` | `/users/{id}` | Update user |
+| `DELETE` | `/users/{id}` | Delete user |
 
 ### Drivers — `/api/drivers`
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/drivers` | Register a new driver |
-| GET | `/drivers` | Get all drivers |
-| GET | `/drivers/{id}` | Get driver by ID |
-| GET | `/drivers/user/{userId}` | Get driver by user ID |
-| GET | `/drivers/status/online` | Get online drivers (sorted by rating) |
-| GET | `/drivers/status/{status}` | Get drivers by status |
-| GET | `/drivers/vehicle/{type}` | Get drivers by vehicle type |
-| PUT | `/drivers/{id}/status` | Update driver status |
-| PUT | `/drivers/{id}/location` | Update driver location |
-| PUT | `/drivers/{id}/vehicle` | Update vehicle info |
-| PUT | `/drivers/{id}/rating` | Update driver rating |
-| DELETE | `/drivers/{id}` | Delete driver |
+| --- | --- | --- |
+| `POST` | `/drivers` | Register a new driver |
+| `GET` | `/drivers` | Get all drivers |
+| `GET` | `/drivers/{id}` | Get driver by ID |
+| `GET` | `/drivers/user/{userId}` | Get driver by user ID |
+| `GET` | `/drivers/status/online` | Get online drivers (sorted by rating) |
+| `GET` | `/drivers/status/{status}` | Get drivers by status |
+| `GET` | `/drivers/vehicle/{type}` | Get drivers by vehicle type |
+| `PUT` | `/drivers/{id}/status` | Update driver status |
+| `PUT` | `/drivers/{id}/location` | Update driver location |
+| `PUT` | `/drivers/{id}/vehicle` | Update vehicle info |
+| `PUT` | `/drivers/{id}/rating` | Update driver rating |
+| `DELETE` | `/drivers/{id}` | Delete driver |
 
 ### Passengers — `/api/passengers`
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/passengers` | Create passenger profile |
-| GET | `/passengers/{id}` | Get passenger by ID |
-| GET | `/passengers/user/{userId}` | Get passenger by user ID |
-| PUT | `/passengers/{id}` | Update passenger |
-| GET | `/passengers/{id}/wallet` | Get wallet balance |
+| --- | --- | --- |
+| `POST` | `/passengers` | Create passenger profile |
+| `GET` | `/passengers/{id}` | Get passenger by ID |
+| `GET` | `/passengers/user/{userId}` | Get passenger by user ID |
+| `PUT` | `/passengers/{id}` | Update passenger |
+| `GET` | `/passengers/{id}/wallet` | Get wallet balance |
 
 ### Ride Requests — `/api/rides/request`
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/rides/request` | Create ride request (triggers matching) |
-| GET | `/rides/request/{id}` | Get request by ID |
-| GET | `/rides/request/open` | Get all open requests |
-| GET | `/rides/request/passenger/{id}` | Get requests by passenger |
-| PUT | `/rides/request/{id}/cancel` | Cancel a ride request |
+| --- | --- | --- |
+| `POST` | `/rides/request` | Create ride request (triggers matching) |
+| `GET` | `/rides/request/{id}` | Get request by ID |
+| `GET` | `/rides/request/open` | Get all open requests |
+| `GET` | `/rides/request/passenger/{id}` | Get requests by passenger |
+| `PUT` | `/rides/request/{id}/cancel` | Cancel a ride request |
 
 ### Rides — `/api/rides`
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/rides/{requestId}/assign/{driverId}` | Manually assign driver |
-| PUT | `/rides/{id}/start` | Start ride |
-| PUT | `/rides/{id}/complete` | Complete ride |
-| PUT | `/rides/{id}/cancel` | Cancel ride |
-| GET | `/rides/{id}` | Get ride by ID |
-| GET | `/rides/driver/{driverId}` | Get rides by driver |
-| GET | `/rides/passenger/{passengerId}` | Get rides by passenger |
+| --- | --- | --- |
+| `POST` | `/rides/{requestId}/assign/{driverId}` | Manually assign driver |
+| `PUT` | `/rides/{id}/start` | Start ride |
+| `PUT` | `/rides/{id}/complete` | Complete ride |
+| `PUT` | `/rides/{id}/cancel` | Cancel ride |
+| `GET` | `/rides/{id}` | Get ride by ID |
+| `GET` | `/rides/driver/{driverId}` | Get rides by driver |
+| `GET` | `/rides/passenger/{passengerId}` | Get rides by passenger |
 
 ### Payments — `/api/payments`
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/payments/ride/{rideId}` | Create payment for completed ride |
-| PUT | `/payments/{id}/success` | Mark payment as successful |
-| PUT | `/payments/{id}/failed` | Mark payment as failed |
-| GET | `/payments/ride/{rideId}` | Get payment by ride ID |
+| --- | --- | --- |
+| `POST` | `/payments/ride/{rideId}` | Create payment for completed ride |
+| `PUT` | `/payments/{id}/success` | Mark payment as successful |
+| `PUT` | `/payments/{id}/failed` | Mark payment as failed |
+| `GET` | `/payments/ride/{rideId}` | Get payment by ride ID |
 
 ### Location — `/api/location`
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/location/driver/{driverId}` | Push driver location to Redis GEO |
-| DELETE | `/location/driver/{driverId}` | Remove driver from location tracking |
-| GET | `/location/nearby?latitude=&longitude=` | Find nearby drivers (5km radius) |
-| GET | `/location/nearby/radius?latitude=&longitude=&radius=` | Find nearby drivers (custom radius) |
-| GET | `/location/driver/{driverId}` | Get last known driver location |
-| GET | `/location/count` | Get online driver count |
+| --- | --- | --- |
+| `POST` | `/location/driver/{driverId}` | Push driver location to Redis GEO |
+| `DELETE` | `/location/driver/{driverId}` | Remove driver from location tracking |
+| `GET` | `/location/nearby` | Find nearby drivers — params: `latitude`, `longitude` (5 km radius) |
+| `GET` | `/location/nearby/radius` | Find nearby drivers — params: `latitude`, `longitude`, `radius` |
+| `GET` | `/location/driver/{driverId}` | Get last known driver location |
+| `GET` | `/location/count` | Get online driver count |
 
 ---
 
@@ -284,11 +285,13 @@ All endpoints are documented interactively at `http://localhost:8082/api/swagger
 ### Connection
 
 Connect via SockJS at:
+
 ```
 ws://localhost:8082/api/ws/ridesharing/{serverId}/{sessionId}/websocket
 ```
 
 Example:
+
 ```
 ws://localhost:8082/api/ws/ridesharing/100/driver1session/websocket
 ```
@@ -296,22 +299,23 @@ ws://localhost:8082/api/ws/ridesharing/100/driver1session/websocket
 ### STOMP Handshake
 
 After connecting, send:
+
 ```
-["CONNECT\naccept-version:1.1,1.2\nheart-beat:0,0\n\n "]
+["CONNECT\naccept-version:1.1,1.2\nheart-beat:0,0\n\n "]
 ```
 
 ### Subscribe Topics
 
-| Topic | Who subscribes | What they receive |
-|---|---|---|
-| `/topic/driver/{driverId}` | Driver | Ride offers + OFFER_EXPIRED notifications |
+| Topic | Who Subscribes | What They Receive |
+| --- | --- | --- |
+| `/topic/driver/{driverId}` | Driver | Ride offers + `OFFER_EXPIRED` notifications |
 | `/topic/passenger/{passengerId}` | Passenger | Driver assigned + ride cancelled notifications |
 | `/topic/ride/{rideId}/tracking` | Passenger | Live GPS coordinates during trip |
 
 ### Send Destinations
 
 | Destination | Payload | Description |
-|---|---|---|
+| --- | --- | --- |
 | `/app/ride/accept` | `{"requestId":"...","driverId":"..."}` | Accept a ride offer |
 | `/app/ride/reject` | `{"requestId":"...","driverId":"..."}` | Reject a ride offer |
 | `/app/ride/{rideId}/location` | `{"latitude":...,"longitude":...}` | Push live location during trip |
@@ -342,31 +346,22 @@ Passenger creates ride request
          ▼
 System scores nearby drivers → sends offer to Driver 1
          │
-         ▼ (10 seconds pass, no response)
+         ▼  (10 seconds pass, no response)
 Driver 1 receives OFFER_EXPIRED
          │
          ▼
 System sends offer to Driver 2
          │
-         ▼ (10 seconds pass)
-Driver 2 receives OFFER_EXPIRED
+         ▼  (Driver 2 accepts)
+Ride created → Passenger notified with driver details
          │
-         ▼
-System sends offer to Driver 3
+         or
          │
-         ├── Driver 3 ACCEPTS
-         │       │
-         │       ▼
-         │   Ride created → Passenger notified with driver details
-         │
-         └── Driver 3 does not respond (10 seconds)
-                 │
-                 ▼
-             After 5 total attempts → Request CANCELLED
-             Passenger notified
+         ▼  (5 attempts exhausted)
+Request CANCELLED → Passenger notified
 ```
 
-The expiry mechanism uses **Redis TTL keyspace notifications**. When the `offer:{requestId}` key expires, `OfferExpiryListener` fires and advances the state machine to the next driver. A MySQL fallback (`OfferExpirationJob`) exists for recovery after Redis restarts.
+The expiry mechanism uses **Redis TTL keyspace notifications**. When the `offer:{requestId}` key expires, `OfferExpiryListener` fires and advances the state machine to the next driver.
 
 ---
 
@@ -388,7 +383,7 @@ src/main/java/com/ridesharing/project/
 │   ├── RideController.java
 │   ├── PaymentController.java
 │   ├── LocationController.java
-│   └── WebSocketController.java      # STOMP message handlers (accept/reject/location)
+│   └── WebSocketController.java      # STOMP message handlers
 │
 ├── dto/
 │   ├── request/                      # Incoming request payloads
@@ -448,7 +443,7 @@ OPEN → OFFER_PENDING → MATCHED → COMPLETED
 ```
 
 | Status | Meaning |
-|---|---|
+| --- | --- |
 | `OPEN` | Request created, matching not yet started |
 | `OFFER_PENDING` | Offer sent to a driver, waiting for response |
 | `MATCHED` | Driver accepted, ride created |
