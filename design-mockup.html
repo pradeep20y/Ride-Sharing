@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>RideSharing — UI Design</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#060d1a;color:#e2e8f0;height:100vh;display:flex;overflow:hidden;}
+
+/* ── Sidebar ── */
+.sidebar{width:230px;background:#0c1628;border-right:1px solid #1e293b;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sidebar-logo{padding:20px 18px 14px;border-bottom:1px solid #1e293b;flex-shrink:0;}
+.logo-row{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.logo-text{font-size:0.9rem;font-weight:800;color:#f1f5f9;}
+.logo-sub{font-size:0.58rem;color:#475569;margin-top:1px;}
+.sidebar-section{padding:12px 10px 4px;}
+.section-tag{font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;padding:0 8px;}
+.tag-p{color:#818cf8;}
+.tag-d{color:#4ade80;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;margin-bottom:2px;transition:background 0.15s;border:1px solid transparent;}
+.nav-item:hover{background:#1e293b;}
+.nav-item.active.p-active{border-color:#4338ca;background:#1e1b4b;}
+.nav-item.active.d-active{border-color:#166534;background:#052e16;}
+.nav-num{font-size:0.56rem;font-weight:700;color:#334155;width:14px;flex-shrink:0;}
+.nav-label{font-size:0.72rem;font-weight:600;color:#64748b;line-height:1.2;}
+.nav-item.active .nav-label{color:#f1f5f9;}
+.new-badge{margin-left:auto;font-size:0.5rem;font-weight:700;background:#0f2a1e;color:#4ade80;border:1px solid #166534;border-radius:4px;padding:1px 5px;flex-shrink:0;}
+.fix-badge{margin-left:auto;font-size:0.5rem;font-weight:700;background:#1a1040;color:#a5b4fc;border:1px solid #4338ca;border-radius:4px;padding:1px 5px;flex-shrink:0;}
+
+/* ── Main ── */
+.main{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.main-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,#0d1f3c 0%,#060d1a 70%);}
+.main-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(99,102,241,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.04) 1px,transparent 1px);background-size:40px 40px;}
+.center-wrap{position:relative;z-index:1;display:flex;align-items:center;gap:52px;}
+
+/* Info panel */
+.screen-info{width:250px;}
+.app-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;}
+.tag-passenger{background:#1e1b4b;color:#a5b4fc;border:1px solid #4338ca;}
+.tag-driver{background:#052e16;color:#4ade80;border:1px solid #16a34a;}
+.s-title{font-size:1.5rem;font-weight:800;color:#f1f5f9;line-height:1.2;margin-bottom:8px;}
+.s-desc{font-size:0.78rem;color:#64748b;line-height:1.65;margin-bottom:18px;}
+.feat-list{display:flex;flex-direction:column;gap:7px;margin-bottom:22px;}
+.feat-item{display:flex;align-items:flex-start;gap:8px;font-size:0.72rem;color:#94a3b8;line-height:1.4;}
+.feat-icon{font-size:0.85rem;margin-top:1px;flex-shrink:0;}
+.api-tag{background:#0a1628;border:1px solid #1e3a5f;border-radius:7px;padding:8px 12px;font-size:0.62rem;color:#475569;margin-bottom:18px;font-family:monospace;}
+.api-tag span{color:#38bdf8;}
+.nav-row{display:flex;gap:8px;align-items:center;}
+.arr-btn{width:38px;height:38px;border-radius:9px;border:1px solid #334155;background:#1e293b;color:#94a3b8;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.arr-btn:hover{background:#334155;color:#f1f5f9;}
+.s-counter{font-size:0.68rem;color:#475569;}
+
+/* ── Phone ── */
+.phone-frame{position:relative;flex-shrink:0;}
+.phone{width:295px;height:590px;background:#0f172a;border-radius:44px;border:3px solid #1e293b;overflow:hidden;position:relative;box-shadow:0 40px 80px rgba(0,0,0,0.7),0 0 0 1px #0a0a0a,inset 0 0 0 1px #334155;}
+.phone::before{content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);width:78px;height:17px;background:#060d1a;border-radius:999px;z-index:99;}
+.phone-frame::before{content:'';position:absolute;right:-5px;top:115px;width:4px;height:38px;background:#1e293b;border-radius:0 4px 4px 0;}
+.phone-frame::after{content:'';position:absolute;left:-5px;top:98px;width:4px;height:26px;background:#1e293b;border-radius:4px 0 0 4px;box-shadow:0 38px 0 #1e293b;}
+
+/* ── Shared ── */
+.screen{display:none;width:100%;height:100%;flex-direction:column;}
+.screen.active{display:flex;}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:26px 18px 5px;font-size:0.58rem;font-weight:600;color:#94a3b8;flex-shrink:0;}
+.map{flex:1;background:#0d2137;position:relative;overflow:hidden;}
+.map::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(99,102,241,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.08) 1px,transparent 1px);background-size:28px 28px;}
+.map.green-grid::before{background-image:linear-gradient(rgba(34,197,94,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,0.07) 1px,transparent 1px);}
+.rh{position:absolute;height:3px;background:#1e3a5f;left:0;right:0;}
+.rv{position:absolute;width:3px;background:#1e3a5f;top:0;bottom:0;}
+.sheet{background:#1e293b;border-radius:20px 20px 0 0;padding:13px 16px 18px;border-top:1px solid #334155;flex-shrink:0;}
+.pill{width:34px;height:4px;background:#334155;border-radius:2px;margin:0 auto 12px;}
+.sh-title{font-size:0.82rem;font-weight:700;color:#f1f5f9;margin-bottom:9px;}
+.loc-row{display:flex;align-items:center;gap:9px;background:#0f172a;border-radius:9px;padding:10px 11px;margin-bottom:7px;}
+.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.lg{background:#22c55e;} .lr{background:#ef4444;} .lb{background:#6366f1;}
+.loc-t{font-size:0.68rem;color:#94a3b8;}
+.chips{display:flex;gap:5px;margin:8px 0;}
+.chip{background:#0f172a;border:1px solid #334155;border-radius:7px;padding:4px 9px;font-size:0.62rem;color:#94a3b8;}
+.chip b{color:#a5b4fc;} .chip.g b{color:#4ade80;}
+.btn{border-radius:10px;padding:11px;font-size:0.76rem;font-weight:700;text-align:center;cursor:pointer;}
+.btn-i{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;box-shadow:0 6px 14px rgba(99,102,241,0.3);}
+.btn-g{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 6px 14px rgba(34,197,94,0.3);}
+.btn-o{border:1px solid #334155;color:#94a3b8;}
+.pin{position:absolute;display:flex;flex-direction:column;align-items:center;}
+.pdot{width:11px;height:11px;border-radius:50%;border:2px solid #fff;}
+.blue{background:#6366f1;} .green{background:#22c55e;}
+.pulse{position:absolute;top:-2px;left:-2px;width:15px;height:15px;border-radius:50%;border:2px solid #6366f1;animation:ripple 1.5s infinite;}
+@keyframes ripple{0%{transform:scale(1);opacity:.8;}100%{transform:scale(2.5);opacity:0;}}
+
+/* P1 Login */
+.login-body{flex:1;display:flex;flex-direction:column;padding:14px;}
+.login-logo{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.l-icon{width:60px;height:60px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 14px 28px rgba(99,102,241,0.4);}
+.l-name{font-size:1.3rem;font-weight:800;color:#f1f5f9;}
+.l-sub{font-size:0.68rem;color:#64748b;}
+.login-form{padding-bottom:20px;display:flex;flex-direction:column;gap:8px;}
+.finput{background:#1e293b;border:1px solid #334155;border-radius:9px;padding:11px 13px;font-size:0.7rem;color:#94a3b8;display:flex;align-items:center;gap:7px;}
+.flink{text-align:center;font-size:0.63rem;color:#64748b;} .flink span{color:#818cf8;}
+
+/* P3 Searching */
+.searching{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;gap:14px;}
+.pw{position:relative;width:96px;height:96px;}
+.pr{position:absolute;inset:0;border-radius:50%;border:2px solid #6366f1;animation:pring 1.6s ease-out infinite;}
+.pr:nth-child(2){animation-delay:.5s;} .pr:nth-child(3){animation-delay:1s;}
+@keyframes pring{0%{transform:scale(.5);opacity:1;}100%{transform:scale(1.9);opacity:0;}}
+.pc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:50%;font-size:1.6rem;box-shadow:0 0 36px rgba(99,102,241,.5);}
+.s-t{font-size:.95rem;font-weight:700;color:#f1f5f9;}
+.s-s{font-size:.7rem;color:#64748b;text-align:center;line-height:1.6;}
+.dots span{display:inline-block;width:6px;height:6px;background:#6366f1;border-radius:50%;margin:0 3px;animation:bd 1.2s infinite;}
+.dots span:nth-child(2){animation-delay:.2s;} .dots span:nth-child(3){animation-delay:.4s;}
+@keyframes bd{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-7px);}}
+.near{width:100%;background:#1e293b;border-radius:11px;overflow:hidden;}
+.near-item{display:flex;align-items:center;gap:9px;padding:8px 11px;border-bottom:1px solid #0f172a;font-size:.66rem;color:#64748b;}
+.near-item:last-child{border:none;}
+.nd{margin-left:auto;color:#6366f1;font-weight:700;font-size:.68rem;}
+.note-box{background:#0f172a;border:1px solid #1e3a5f;border-radius:9px;padding:9px 11px;font-size:.64rem;color:#475569;line-height:1.5;width:100%;}
+.note-box b{color:#64748b;}
+
+/* P4 Assigned */
+.drv-row{display:flex;align-items:center;gap:11px;padding-bottom:11px;border-bottom:1px solid #334155;margin-bottom:10px;}
+.dav{width:46px;height:46px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.di{flex:1;}
+.dn{font-size:.88rem;font-weight:700;color:#f1f5f9;}
+.dc{font-size:.63rem;color:#64748b;margin-top:2px;}
+.ds{color:#fbbf24;font-size:.7rem;margin-top:2px;}
+.plate{background:#0f172a;border:1px solid #334155;border-radius:5px;padding:4px 8px;font-size:.62rem;font-weight:700;color:#a5b4fc;letter-spacing:.08em;}
+.eta-r{display:flex;justify-content:space-between;font-size:.68rem;color:#64748b;}
+.eta-r b{color:#a5b4fc;}
+.ok-tag{font-size:.66rem;color:#4ade80;font-weight:700;margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+
+/* P5 Live Tracking */
+.tracking-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#1e1b4b;border-bottom:1px solid #312e81;flex-shrink:0;}
+.tb-dot{width:8px;height:8px;background:#6366f1;border-radius:50%;animation:blk 1.5s infinite;}
+@keyframes blk{0%,100%{opacity:1;}50%{opacity:.3;}}
+.tb-txt{font-size:.72rem;font-weight:700;color:#a5b4fc;}
+.tb-fare{margin-left:auto;font-size:.68rem;color:#64748b;} .tb-fare b{color:#a5b4fc;}
+.car-moving{position:absolute;font-size:1.5rem;filter:drop-shadow(0 0 10px rgba(99,102,241,.9));}
+.route-line{position:absolute;background:linear-gradient(90deg,#6366f1,#22c55e);height:3px;border-radius:2px;}
+.loc-update{background:#1e293b;border-top:1px solid #334155;padding:10px 16px;flex-shrink:0;}
+.lu-row{display:flex;align-items:center;gap:8px;}
+.lu-dot{width:7px;height:7px;background:#6366f1;border-radius:50%;animation:blk 1.5s infinite;}
+.lu-txt{font-size:.66rem;color:#94a3b8;}
+.lu-coords{font-size:.7rem;color:#a5b4fc;font-family:monospace;margin-top:3px;}
+
+/* P6 Cancelled */
+.cancelled{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:14px;}
+.cx-icon{width:70px;height:70px;background:#1f0a0a;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;}
+.cx-title{font-size:1rem;font-weight:700;color:#fca5a5;}
+.cx-msg{font-size:.72rem;color:#64748b;text-align:center;line-height:1.6;background:#1e293b;border-radius:10px;padding:12px;border:1px solid #334155;width:100%;}
+.cx-note{font-size:.64rem;color:#475569;text-align:center;}
+
+/* D1 Dashboard */
+.dash-hdr{background:linear-gradient(160deg,#052e16,#0a1628);padding:32px 16px 16px;flex-shrink:0;}
+.dh-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.dh-g{font-size:.66rem;color:#4ade80;font-weight:700;margin-bottom:2px;}
+.dh-n{font-size:1rem;font-weight:800;color:#f1f5f9;}
+.toggle{width:48px;height:26px;background:#22c55e;border-radius:999px;position:relative;box-shadow:0 0 10px rgba(34,197,94,.4);}
+.toggle::after{content:'';position:absolute;right:3px;top:3px;width:20px;height:20px;background:#fff;border-radius:50%;}
+.tgl-col{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.tgl-lbl{font-size:.52rem;font-weight:700;color:#4ade80;}
+.stats{display:flex;gap:7px;padding:11px 16px;border-bottom:1px solid #1e293b;flex-shrink:0;}
+.stat{flex:1;background:#1e293b;border-radius:11px;padding:9px 7px;text-align:center;border:1px solid #334155;}
+.sv{font-size:.95rem;font-weight:800;}
+.sv.g{color:#4ade80;} .sv.y{color:#fbbf24;} .sv.w{color:#f1f5f9;}
+.sl{font-size:.52rem;color:#64748b;margin-top:2px;font-weight:600;text-transform:uppercase;}
+.dash-map-inner{flex:1;position:relative;overflow:hidden;margin:10px;border-radius:13px;border:1px solid #1e3a5f;}
+.dash-map-inner::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(34,197,94,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,.07) 1px,transparent 1px);background-size:28px 28px;}
+.your-car{position:absolute;top:38%;left:41%;font-size:1.5rem;filter:drop-shadow(0 0 10px rgba(34,197,94,.8));}
+.online-pill{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);background:#052e16;border:1px solid #16a34a;border-radius:999px;padding:4px 13px;font-size:.6rem;font-weight:700;color:#4ade80;display:flex;align-items:center;gap:5px;}
+.blink{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:blk 1.5s infinite;}
+
+/* D2 Offer */
+.offer-hdr{background:linear-gradient(160deg,#1e1b4b,#0f172a);padding:32px 16px 14px;border-bottom:1px solid #312e81;flex-shrink:0;}
+.otag{display:inline-flex;align-items:center;gap:5px;background:#312e81;border-radius:999px;padding:4px 11px;font-size:.6rem;font-weight:700;color:#a5b4fc;letter-spacing:.06em;text-transform:uppercase;margin-bottom:9px;}
+.ofare{font-size:1.9rem;font-weight:800;color:#f1f5f9;line-height:1;}
+.ofare span{font-size:.78rem;color:#64748b;font-weight:400;}
+.twrap{height:5px;background:#1e293b;border-radius:3px;margin:11px 0 3px;overflow:hidden;}
+.tfill{height:100%;border-radius:3px;background:linear-gradient(90deg,#6366f1,#22d3ee);width:60%;}
+.ttxt{font-size:.6rem;color:#64748b;text-align:right;}
+.offer-body{flex:1;padding:12px 16px;overflow:hidden;}
+.or{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #1e293b;}
+.oi{font-size:.95rem;margin-top:2px;flex-shrink:0;}
+.ol{font-size:.56rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.ov{font-size:.73rem;color:#e2e8f0;font-weight:500;}
+.ochips{display:flex;gap:6px;margin:10px 0;}
+.oc{background:#1e293b;border:1px solid #334155;border-radius:7px;padding:5px 9px;font-size:.63rem;color:#94a3b8;font-weight:600;}
+.oc.hi{background:#1e1b4b;border-color:#4338ca;color:#a5b4fc;}
+.offer-acts{display:flex;gap:9px;padding:0 16px 16px;flex-shrink:0;}
+.obtn{flex:1;padding:13px;border-radius:11px;font-size:.82rem;font-weight:700;border:none;cursor:pointer;text-align:center;}
+.acc{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 7px 14px rgba(34,197,94,.3);}
+.rej{background:#1e293b;border:1px solid #334155;color:#ef4444;}
+
+/* D3 Going to Pickup */
+.trip-status{display:flex;align-items:center;gap:8px;padding:9px 16px;background:#0d2a1e;border-bottom:1px solid #166534;flex-shrink:0;}
+.ts-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ts-dot.orange{background:#f59e0b;animation:blk 1.5s infinite;}
+.ts-dot.green2{background:#22c55e;animation:blk 1.5s infinite;}
+.ts-txt{font-size:.72rem;font-weight:700;}
+.ts-txt.orange{color:#fbbf24;} .ts-txt.green2{color:#4ade80;}
+.pass-row2{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #334155;margin-bottom:9px;}
+.pav{width:38px;height:38px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.pn{font-size:.76rem;font-weight:700;color:#f1f5f9;}
+.pd{font-size:.62rem;color:#64748b;margin-top:1px;}
+.call{margin-left:auto;font-size:1.2rem;cursor:pointer;}
+
+/* D4 Trip Active - location push */
+.loc-push{background:#0a1628;border-top:1px solid #1e3a5f;padding:8px 16px;flex-shrink:0;}
+.lp-row{display:flex;align-items:center;gap:7px;}
+.lp-dot{width:6px;height:6px;background:#6366f1;border-radius:50%;animation:blk 1.5s infinite;}
+.lp-txt{font-size:.62rem;color:#475569;}
+.lp-coord{font-size:.68rem;color:#6366f1;font-family:monospace;}
+
+/* D5 Earnings */
+.earn-hdr{background:linear-gradient(160deg,#052e16,#0a1628);padding:32px 16px 16px;flex-shrink:0;}
+.etag{font-size:.6rem;font-weight:700;color:#4ade80;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+.eamt{font-size:2rem;font-weight:800;color:#f1f5f9;line-height:1;}
+.eamt span{font-size:.95rem;color:#4ade80;}
+.etrend{font-size:.63rem;color:#64748b;margin-top:3px;}
+.earn-body2{flex:1;padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow:hidden;}
+.chart-lbl{font-size:.58rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;}
+.bar-wrap{display:flex;align-items:flex-end;gap:7px;height:58px;margin-top:7px;}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.b{width:100%;border-radius:4px 4px 0 0;background:#1e293b;position:relative;overflow:hidden;}
+.b::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#22c55e,#16a34a);}
+.b.today::after{background:linear-gradient(180deg,#4ade80,#22c55e);}
+.bday{font-size:.48rem;color:#475569;font-weight:600;} .bday.t{color:#4ade80;}
+.trip-list{display:flex;flex-direction:column;gap:6px;}
+.ti{display:flex;align-items:center;justify-content:space-between;background:#1e293b;border-radius:9px;padding:8px 11px;border:1px solid #334155;}
+.tt{font-size:.58rem;color:#64748b;} .tr{font-size:.66rem;color:#94a3b8;margin-top:1px;}
+.te{font-size:.76rem;font-weight:700;color:#4ade80;}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-row">
+      <div class="logo-icon">🚖</div>
+      <div><div class="logo-text">RideShare</div><div class="logo-sub">UI Design Mockup</div></div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="section-tag tag-p">👤 Passenger App</div>
+    <div class="nav-item active p-active" onclick="show(0)"><span class="nav-num">01</span><span class="nav-label">Login / Register</span></div>
+    <div class="nav-item" onclick="show(1)"><span class="nav-num">02</span><span class="nav-label">Request a Ride</span></div>
+    <div class="nav-item" onclick="show(2)"><span class="nav-num">03</span><span class="nav-label">Waiting for Driver</span><span class="fix-badge">FIXED</span></div>
+    <div class="nav-item" onclick="show(3)"><span class="nav-num">04</span><span class="nav-label">Driver Assigned</span></div>
+    <div class="nav-item" onclick="show(4)"><span class="nav-num">05</span><span class="nav-label">Live Tracking</span><span class="new-badge">NEW</span></div>
+    <div class="nav-item" onclick="show(5)"><span class="nav-num">06</span><span class="nav-label">Ride Cancelled</span><span class="new-badge">NEW</span></div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="section-tag tag-d">🚗 Driver App</div>
+    <div class="nav-item" onclick="show(6)"><span class="nav-num">01</span><span class="nav-label">Dashboard</span></div>
+    <div class="nav-item" onclick="show(7)"><span class="nav-num">02</span><span class="nav-label">Incoming Offer</span></div>
+    <div class="nav-item" onclick="show(8)"><span class="nav-num">03</span><span class="nav-label">Going to Pickup</span><span class="new-badge">NEW</span></div>
+    <div class="nav-item" onclick="show(9)"><span class="nav-num">04</span><span class="nav-label">Trip Active</span><span class="fix-badge">FIXED</span></div>
+    <div class="nav-item" onclick="show(10)"><span class="nav-num">05</span><span class="nav-label">Earnings</span></div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="main-bg"></div>
+  <div class="center-wrap">
+
+    <div class="screen-info" id="info"></div>
+
+    <div class="phone-frame">
+      <div class="phone">
+
+        <!-- P1: Login -->
+        <div class="screen active" id="s0">
+          <div class="sbar"><span>9:41</span><span>▐▐▐ 100%</span></div>
+          <div class="login-body">
+            <div class="login-logo">
+              <div class="l-icon">🚖</div>
+              <div class="l-name">RideShare</div>
+              <div class="l-sub">Your ride, on demand</div>
+            </div>
+            <div class="login-form">
+              <div class="finput">📧&nbsp; Email address</div>
+              <div class="finput">🔒&nbsp; Password</div>
+              <div class="btn btn-i">Sign In</div>
+              <div class="btn btn-o" style="border:1px solid #334155;color:#94a3b8;border-radius:10px;padding:11px;font-size:.76rem;font-weight:700;text-align:center;">Create Account</div>
+              <div class="flink">Forgot password? <span>Reset here</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- P2: Request Ride -->
+        <div class="screen" id="s1">
+          <div class="sbar"><span>9:41</span><span>▐▐▐ 100%</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;">
+            <div class="map" style="flex:1;">
+              <div class="rh" style="top:33%"></div><div class="rh" style="top:63%"></div>
+              <div class="rv" style="left:38%"></div><div class="rv" style="left:66%"></div>
+              <div style="position:absolute;top:38%;left:20%;font-size:.9rem;opacity:.7">🚗</div>
+              <div style="position:absolute;top:52%;left:68%;font-size:.9rem;opacity:.7">🚗</div>
+              <div style="position:absolute;top:22%;left:54%;font-size:.9rem;opacity:.7">🚗</div>
+              <div class="pin" style="top:27%;left:43%"><div style="position:relative"><div class="pdot blue"></div><div class="pulse"></div></div></div>
+              <div class="pin" style="top:57%;left:60%"><div class="pdot green"></div></div>
+            </div>
+            <div class="sheet">
+              <div class="pill"></div>
+              <div class="sh-title">Where to?</div>
+              <div class="loc-row"><div class="ldot lg"></div><div class="loc-t">📍 Your current location</div></div>
+              <div class="loc-row"><div class="ldot lr"></div><div class="loc-t">🔍 Enter destination...</div></div>
+              <div class="chips">
+                <div class="chip">Est. <b>₹ 120</b></div>
+                <div class="chip">~<b>14 min</b></div>
+                <div class="chip"><b>3.2 km</b></div>
+              </div>
+              <div class="btn btn-i">Request Ride</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- P3: Waiting (FIXED) -->
+        <div class="screen" id="s2">
+          <div class="sbar"><span>9:41</span><span>▐▐▐ 100%</span></div>
+          <div class="searching">
+            <div class="pw">
+              <div class="pr"></div><div class="pr"></div><div class="pr"></div>
+              <div class="pc">🚖</div>
+            </div>
+            <div class="s-t">Looking for a driver...</div>
+            <div class="s-s">Offers are sent to nearby drivers<br/>one at a time. Please wait.</div>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="note-box"><b>How it works:</b> The system scores nearby drivers by proximity + rating and sends offers one at a time. Each driver has 10 seconds to accept.</div>
+            <div class="near">
+              <div class="near-item">🚗 Driver nearby <div class="nd">0.8 km</div></div>
+              <div class="near-item">🚗 Driver nearby <div class="nd">1.4 km</div></div>
+              <div class="near-item">🚗 Driver nearby <div class="nd">2.1 km</div></div>
+            </div>
+            <div class="btn btn-o" style="width:100%;font-size:.7rem;padding:9px;border:1px solid #334155;color:#94a3b8;border-radius:9px;text-align:center;cursor:pointer;">Cancel Request</div>
+          </div>
+        </div>
+
+        <!-- P4: Driver Assigned -->
+        <div class="screen" id="s3">
+          <div class="sbar"><span>9:41</span><span>▐▐▐ 100%</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;">
+            <div class="map" style="flex:1;">
+              <div class="rh" style="top:42%"></div><div class="rv" style="left:50%"></div>
+              <div style="position:absolute;top:30%;left:18%;width:55%;height:3px;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:2px;transform:rotate(-5deg)"></div>
+              <div style="position:absolute;top:28%;left:26%;font-size:1.4rem;filter:drop-shadow(0 0 8px rgba(99,102,241,.8))">🚗</div>
+              <div style="position:absolute;top:52%;left:58%;font-size:.68rem;background:#6366f1;color:#fff;padding:2px 7px;border-radius:999px;font-weight:700">YOU</div>
+            </div>
+            <div class="sheet">
+              <div class="pill"></div>
+              <div class="ok-tag">✅ Driver on the way!</div>
+              <div class="drv-row">
+                <div class="dav">👨</div>
+                <div class="di">
+                  <div class="dn">Rahul Sharma</div>
+                  <div class="dc">Honda City · Silver</div>
+                  <div class="ds">★★★★★ <span style="color:#64748b;font-size:.6rem">4.9</span></div>
+                </div>
+                <div class="plate">MH12 AB1234</div>
+              </div>
+              <div class="eta-r">
+                <span>Arriving in <b>4 min</b></span>
+                <span>Fare: <b>₹ 120</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- P5: Live Tracking (NEW) -->
+        <div class="screen" id="s4">
+          <div class="sbar"><span>9:41</span><span>▐▐▐ 100%</span></div>
+          <div class="tracking-bar">
+            <div class="tb-dot"></div>
+            <div class="tb-txt">Driver is on the way</div>
+            <div class="tb-fare">Fare: <b>₹ 120</b></div>
+          </div>
+          <div class="map" style="flex:1;">
+            <div class="rh" style="top:35%"></div><div class="rh" style="top:65%"></div>
+            <div class="rv" style="left:35%"></div><div class="rv" style="left:65%"></div>
+            <div style="position:absolute;top:28%;left:15%;width:62%;height:3px;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:2px;transform:rotate(8deg)"></div>
+            <div class="car-moving" style="top:30%;left:28%">🚗</div>
+            <div class="pin" style="top:48%;left:58%"><div style="position:relative"><div class="pdot blue"></div><div class="pulse"></div></div></div>
+            <div style="position:absolute;top:50%;left:60%;font-size:.62rem;color:#a5b4fc;font-weight:700;margin-top:12px">YOU</div>
+          </div>
+          <div class="loc-update">
+            <div class="lu-row"><div class="lu-dot"></div><div class="lu-txt">Live GPS update</div></div>
+            <div class="lu-coords">lat: 19.054823 · lng: 72.831462</div>
+          </div>
+          <div class="sheet" style="border-radius:0;padding:10px 16px 14px;">
+            <div class="drv-row" style="border:none;padding:0;margin:0;">
+              <div class="dav" style="width:36px;height:36px;font-size:1rem">👨</div>
+              <div class="di"><div class="dn" style="font-size:.8rem">Rahul Sharma</div><div class="dc">Honda City · MH12 AB1234</div></div>
+              <div style="font-size:1.2rem;cursor:pointer;margin-left:auto">📞</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- P6: Cancelled (NEW) -->
+        <div class="screen" id="s5">
+          <div class="sbar"><span>9:41</span><span>▐▐▐ 100%</span></div>
+          <div class="cancelled">
+            <div class="cx-icon">😔</div>
+            <div class="cx-title">Ride Cancelled</div>
+            <div class="cx-msg">No drivers were available to accept your ride after 5 attempts. Please try again.</div>
+            <div class="cx-note">The system tried 5 nearby drivers.<br/>All offers timed out or were rejected.</div>
+            <div class="btn btn-i" style="width:100%">Try Again</div>
+            <div class="btn btn-o" style="width:100%;border:1px solid #334155;color:#94a3b8;border-radius:10px;padding:11px;font-size:.76rem;font-weight:700;text-align:center;">Back to Home</div>
+          </div>
+        </div>
+
+        <!-- D1: Dashboard -->
+        <div class="screen" id="s6">
+          <div class="sbar" style="position:absolute;top:0;left:0;right:0;z-index:2;background:transparent"><span>9:41</span><span>▐▐▐ 100%</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;padding-top:0;">
+            <div class="dash-hdr">
+              <div class="dh-row">
+                <div><div class="dh-g">Good morning 👋</div><div class="dh-n">Rahul Sharma</div></div>
+                <div class="tgl-col"><div class="toggle"></div><div class="tgl-lbl">ONLINE</div></div>
+              </div>
+            </div>
+            <div class="stats">
+              <div class="stat"><div class="sv g">₹ 840</div><div class="sl">Earnings</div></div>
+              <div class="stat"><div class="sv w">7</div><div class="sl">Trips</div></div>
+              <div class="stat"><div class="sv y">4.9 ★</div><div class="sl">Rating</div></div>
+            </div>
+            <div class="dash-map-inner">
+              <div class="rh" style="top:45%"></div><div class="rv" style="left:45%"></div>
+              <div class="your-car">🚗</div>
+              <div class="online-pill"><div class="blink"></div>You are online</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- D2: Incoming Offer -->
+        <div class="screen" id="s7">
+          <div class="d-offer" style="flex:1;display:flex;flex-direction:column;">
+            <div class="offer-hdr">
+              <div class="otag">🔔 New Ride Offer</div>
+              <div class="ofare">₹ 185 <span>estimated fare</span></div>
+              <div class="twrap"><div class="tfill"></div></div>
+              <div class="ttxt">Expires in 6 seconds</div>
+            </div>
+            <div class="offer-body">
+              <div class="or"><div class="oi">📍</div><div><div class="ol">Pickup</div><div class="ov">Bandra Station, Mumbai</div></div></div>
+              <div class="or"><div class="oi">🏁</div><div><div class="ol">Dropoff</div><div class="ov">Andheri East, Mumbai</div></div></div>
+              <div class="ochips">
+                <div class="oc hi">📏 7.4 km trip</div>
+                <div class="oc">🕐 ~22 min</div>
+                <div class="oc">📍 1.2 km away</div>
+              </div>
+            </div>
+            <div class="offer-acts">
+              <div class="obtn acc">✔ Accept</div>
+              <div class="obtn rej">✘ Reject</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- D3: Going to Pickup (NEW) -->
+        <div class="screen" id="s8">
+          <div class="sbar"><span>9:41</span><span>▐▐▐ 100%</span></div>
+          <div class="trip-status">
+            <div class="ts-dot orange"></div>
+            <div class="ts-txt orange">Going to pickup</div>
+            <div style="margin-left:auto;font-size:.62rem;color:#64748b">1.2 km away</div>
+          </div>
+          <div class="map green-grid" style="flex:1;">
+            <div class="rh" style="top:50%"></div><div class="rv" style="left:42%"></div>
+            <div style="position:absolute;top:28%;left:15%;width:50%;height:3px;background:linear-gradient(90deg,#f59e0b,#22c55e);border-radius:2px;transform:rotate(12deg)"></div>
+            <div style="position:absolute;top:28%;left:40%;font-size:1.5rem;filter:drop-shadow(0 0 10px rgba(34,197,94,.8))">🚗</div>
+            <div style="position:absolute;top:44%;left:22%;font-size:1.1rem">📍</div>
+          </div>
+          <div class="sheet">
+            <div class="pill"></div>
+            <div class="trip-status" style="background:transparent;border:none;padding:0 0 9px;margin-bottom:0;">
+              <div class="ts-dot orange"></div>
+              <div class="ts-txt orange" style="font-size:.7rem">Arriving at pickup point</div>
+            </div>
+            <div class="pass-row2">
+              <div class="pav">👤</div>
+              <div><div class="pn">Priya Mehta</div><div class="pd">📍 Bandra Station</div></div>
+              <div class="call">📞</div>
+            </div>
+            <div class="btn btn-g">Start Trip</div>
+          </div>
+        </div>
+
+        <!-- D4: Trip Active (FIXED) -->
+        <div class="screen" id="s9">
+          <div class="sbar"><span>9:41</span><span>▐▐▐ 100%</span></div>
+          <div class="trip-status">
+            <div class="ts-dot green2"></div>
+            <div class="ts-txt green2">Trip in progress</div>
+            <div style="margin-left:auto;font-size:.62rem;color:#64748b">7.4 km left</div>
+          </div>
+          <div class="map green-grid" style="flex:1;">
+            <div class="rh" style="top:50%"></div><div class="rv" style="left:42%"></div>
+            <div style="position:absolute;top:0;bottom:0;left:46%;width:3px;background:linear-gradient(180deg,#22c55e,#6366f1);transform:rotate(12deg)"></div>
+            <div style="position:absolute;top:35%;left:41%;font-size:1.5rem;filter:drop-shadow(0 0 10px rgba(34,197,94,.8))">🚗</div>
+            <div style="position:absolute;top:14%;left:56%;font-size:1.1rem">📍</div>
+          </div>
+          <div class="loc-push">
+            <div class="lp-row">
+              <div class="lp-dot"></div>
+              <div class="lp-txt">Pushing location via WebSocket</div>
+              <div class="lp-coord" style="margin-left:auto">19.0548, 72.8314</div>
+            </div>
+          </div>
+          <div class="sheet">
+            <div class="pill"></div>
+            <div class="pass-row2">
+              <div class="pav">👤</div>
+              <div><div class="pn">Priya Mehta</div><div class="pd">→ Andheri East, Mumbai</div></div>
+              <div class="call">📞</div>
+            </div>
+            <div class="btn btn-g">Complete Trip</div>
+          </div>
+        </div>
+
+        <!-- D5: Earnings -->
+        <div class="screen" id="s10">
+          <div class="d-earn" style="flex:1;display:flex;flex-direction:column;">
+            <div class="earn-hdr">
+              <div class="etag">This Week</div>
+              <div class="eamt"><span>₹ </span>4,280</div>
+              <div class="etrend">↑ 12% more than last week · 24 trips</div>
+            </div>
+            <div class="earn-body2">
+              <div>
+                <div class="chart-lbl">Daily Breakdown</div>
+                <div class="bar-wrap">
+                  <div class="bc"><div class="b" style="height:26px"></div><div class="bday">Mon</div></div>
+                  <div class="bc"><div class="b" style="height:42px"></div><div class="bday">Tue</div></div>
+                  <div class="bc"><div class="b" style="height:22px"></div><div class="bday">Wed</div></div>
+                  <div class="bc"><div class="b" style="height:50px"></div><div class="bday">Thu</div></div>
+                  <div class="bc"><div class="b" style="height:34px"></div><div class="bday">Fri</div></div>
+                  <div class="bc"><div class="b" style="height:54px"></div><div class="bday">Sat</div></div>
+                  <div class="bc"><div class="b today" style="height:38px"></div><div class="bday t">Sun</div></div>
+                </div>
+              </div>
+              <div>
+                <div class="chart-lbl" style="margin-bottom:7px">Recent Trips</div>
+                <div class="trip-list">
+                  <div class="ti"><div><div class="tt">Today, 9:12 AM</div><div class="tr">Bandra → Andheri</div></div><div class="te">₹ 185</div></div>
+                  <div class="ti"><div><div class="tt">Today, 7:45 AM</div><div class="tr">Dadar → Worli</div></div><div class="te">₹ 140</div></div>
+                  <div class="ti"><div><div class="tt">Yesterday, 11:30 PM</div><div class="tr">Airport → Powai</div></div><div class="te">₹ 320</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- phone -->
+    </div><!-- phone-frame -->
+  </div><!-- center-wrap -->
+</div><!-- main -->
+
+<script>
+const data = [
+  {app:'passenger',title:'Login / Register',
+   desc:'Users sign in or create an account. After registration, the role (PASSENGER) is set via POST /users.',
+   api:'POST /api/users\nPOST /api/passengers',
+   feats:[{i:'📧',t:'Email + password sign in'},{i:'✨',t:'Create passenger account'},{i:'🔒',t:'Password reset flow'}]},
+  {app:'passenger',title:'Request a Ride',
+   desc:'Passenger picks pickup & dropoff on the map. The fare and ETA are estimated client-side using the Haversine formula before calling the API.',
+   api:'POST /api/rides/request',
+   feats:[{i:'🗺️',t:'Live map with nearby driver pins'},{i:'📍',t:'Auto-detect current location'},{i:'💰',t:'Estimated fare + ETA shown'}]},
+  {app:'passenger',title:'Waiting for Driver',
+   desc:'After the ride request is created, the passenger waits. The backend sends offers to drivers one at a time — the passenger gets NO intermediate notification, only the final assignment.',
+   api:'WebSocket: /topic/passenger/{id}\n← waits for DRIVER_ASSIGNED',
+   feats:[{i:'🔄',t:'Client-side spinner — no backend push'},{i:'🤖',t:'Backend scores drivers: 60% proximity + 40% rating'},{i:'❌',t:'PUT /rides/request/{id}/cancel to cancel'}],
+   fixed:true},
+  {app:'passenger',title:'Driver Assigned',
+   desc:'When a driver accepts, the passenger receives a WebSocket push with driver details from DriverAssignedResponse.',
+   api:'WebSocket ← {rideId, driverName,\nlicensePlate, vehicleType,\ndriverRating, driverLatitude,\ndriverLongitude}',
+   feats:[{i:'✅',t:'Driver name, vehicle, rating shown'},{i:'🚗',t:'License plate displayed'},{i:'🗺️',t:'Driver\'s current location on map'}]},
+  {app:'passenger',title:'Live Tracking',
+   desc:'After the driver starts the trip, the passenger subscribes to the ride tracking topic and receives live GPS coordinates pushed by the driver.',
+   api:'WebSocket: /topic/ride/{rideId}/tracking\n← {latitude, longitude}',
+   feats:[{i:'📍',t:'Driver pin moves on map in real time'},{i:'🔄',t:'GPS updates every few seconds'},{i:'📞',t:'One-tap call to driver'}],
+   isNew:true},
+  {app:'passenger',title:'Ride Cancelled',
+   desc:'If all 5 driver offer attempts fail (timeout or rejection), the backend sends a CANCELLED WebSocket notification to the passenger.',
+   api:'WebSocket ← {status:"CANCELLED",\nreason:"No drivers available..."}',
+   feats:[{i:'😔',t:'Clear cancellation message'},{i:'🔁',t:'Try Again triggers new POST /rides/request'},{i:'📊',t:'Reason from backend shown'}],
+   isNew:true},
+  {app:'driver',title:'Dashboard',
+   desc:'The driver\'s home screen. Stats come from GET /drivers/{id} which returns totalEarnings, totalRides, and rating. The Online toggle calls PUT /drivers/{id}/status.',
+   api:'GET /api/drivers/{id}\nPUT /api/drivers/{id}/status\nPOST /api/location/driver/{id}',
+   feats:[{i:'💚',t:'ONLINE / OFFLINE toggle'},{i:'💰',t:'Today\'s earnings & trip count'},{i:'⭐',t:'Current rating from MySQL'}]},
+  {app:'driver',title:'Incoming Offer',
+   desc:'A ride offer arrives via WebSocket. The driver sees fare, pickup, dropoff, trip distance, and distance from their location. They have 10 seconds to respond.',
+   api:'WebSocket ← /topic/driver/{id}\n{requestId, estimatedFare,\npickupAddress, dropoffAddress,\ndistanceFromDriverKm}',
+   feats:[{i:'⏱️',t:'10-second countdown timer bar'},{i:'✔️',t:'Accept: /app/ride/accept'},{i:'✘',t:'Reject: /app/ride/reject'}]},
+  {app:'driver',title:'Going to Pickup',
+   desc:'After accepting, the ride status is "Assigned". Driver navigates to the pickup point. Once there, they tap Start Trip which transitions status to InProgress.',
+   api:'PUT /api/rides/{id}/start\n(Assigned → InProgress)',
+   feats:[{i:'🟡',t:'Status: Assigned — going to pickup'},{i:'🗺️',t:'Navigation to pickup point'},{i:'🟢',t:'Start Trip button triggers ride start'}],
+   isNew:true},
+  {app:'driver',title:'Trip Active',
+   desc:'The trip is InProgress. The driver pushes live GPS coordinates via WebSocket, which are relayed to the passenger\'s tracking screen. Tapping Complete Trip ends the ride.',
+   api:'WebSocket → /app/ride/{id}/location\n{latitude, longitude}\nPUT /api/rides/{id}/complete',
+   feats:[{i:'📡',t:'Driver pushes GPS via WebSocket'},{i:'👤',t:'Passenger sees live location update'},{i:'✅',t:'Complete Trip → status = Completed'}],
+   fixed:true},
+  {app:'driver',title:'Earnings',
+   desc:'Summary of the driver\'s weekly earnings with a daily bar chart and recent trip history. Data comes from the Driver entity (totalEarnings, totalRides).',
+   api:'GET /api/drivers/{id}\n→ totalEarnings, totalRides,\n   rating',
+   feats:[{i:'📊',t:'7-day earnings bar chart'},{i:'📋',t:'Recent trips with fare amounts'},{i:'📈',t:'Week-over-week trend'}]},
+];
+
+function show(idx){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+idx).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach((n,i)=>{
+    n.classList.remove('active','p-active','d-active');
+    if(i===idx){n.classList.add('active');n.classList.add(idx<6?'p-active':'d-active');}
+  });
+  const d=data[idx];
+  const isP=d.app==='passenger';
+  const badges=(d.isNew?`<span style="background:#0f2a1e;color:#4ade80;border:1px solid #166534;border-radius:5px;padding:2px 8px;font-size:.6rem;font-weight:700;margin-left:8px">NEW</span>`:'')
+    +(d.fixed?`<span style="background:#1a1040;color:#a5b4fc;border:1px solid #4338ca;border-radius:5px;padding:2px 8px;font-size:.6rem;font-weight:700;margin-left:8px">FIXED</span>`:'');
+  const feats=d.feats.map(f=>`<div class="feat-item"><span class="feat-icon">${f.i}</span>${f.t}</div>`).join('');
+  document.getElementById('info').innerHTML=`
+    <div class="app-tag ${isP?'tag-passenger':'tag-driver'}">${isP?'👤 Passenger App':'🚗 Driver App'}</div>
+    <div class="s-title">${d.title}${badges}</div>
+    <div class="s-desc">${d.desc}</div>
+    <div class="feat-list">${feats}</div>
+    <div class="api-tag"><span>${d.api.replace(/\n/g,'<br/>')}</span></div>
+    <div class="nav-row">
+      <button class="arr-btn" onclick="show(${Math.max(0,idx-1)})">←</button>
+      <button class="arr-btn" onclick="show(${Math.min(10,idx+1)})">→</button>
+      <span class="s-counter">${idx+1} / 11</span>
+    </div>`;
+}
+show(0);
+</script>
+</body>
+</html>
