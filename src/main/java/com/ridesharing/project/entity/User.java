@@ -27,6 +27,9 @@ public class User {
     private String phone;
 
     @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
     private String userType; // PASSENGER or DRIVER
 
     @Column(nullable = false)
