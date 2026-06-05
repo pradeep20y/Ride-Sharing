@@ -69,7 +69,7 @@ public class DriverController {
      * @param request validated registration payload (userId, licensePlate, vehicleType)
      * @return 201 Created with the new driver's full profile
      */
-    @PostMapping
+ /*    @PostMapping
     @Operation(
         summary = "Register a new driver",
         description = "Creates a driver profile for an existing user account. "
@@ -92,7 +92,7 @@ public class DriverController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(driver, "Driver registered successfully"));
     }
-
+ */
     // ── Read ──────────────────────────────────────────────────────────────────
 
     /**
