@@ -1,6 +1,9 @@
 package com.ridesharing.project.service;
 
 import com.ridesharing.project.dto.response.NearbyDriverResponse;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.GeoResult;
@@ -15,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class LocationService {
 
     // Redis sorted-set key under which all driver GPS positions are stored via GEO commands.
@@ -25,10 +29,7 @@ public class LocationService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public LocationService(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
-
+ 
     // Stores the driver's current GPS coordinates in the Redis GEO index.
     // Called every time a driver sends a location update so passengers always see accurate nearby drivers.
     // Note: Redis GEO expects longitude first, then latitude — opposite of the standard geographic convention.

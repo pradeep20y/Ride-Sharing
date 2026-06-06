@@ -1,6 +1,5 @@
 package com.ridesharing.project.controller;
 
-import com.ridesharing.project.dto.request.CreatePassengerRequest;
 import com.ridesharing.project.dto.request.UpdatePassengerRequest;
 import com.ridesharing.project.dto.response.ApiResponse;
 import com.ridesharing.project.dto.response.ErrorResponse;
@@ -14,40 +13,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
+
+ 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 // This controller exposes REST endpoints for creating, retrieving, and updating passenger profiles and wallet information.
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/passengers")
 @CrossOrigin(origins = "*")
 @Tag(name = "Passenger", description = "APIs for managing passenger profiles and wallet information")
 public class PassengerController {
 
-    @Autowired
-    private PassengerService passengerService;
-
-    // Creates a new passenger profile for the user specified in the request body.
-    @Operation(summary = "Create a passenger profile", description = "Creates a new passenger profile for the user specified in the request body.")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Passenger profile created successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PassengerResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation error in request body",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "User already has a passenger profile",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @PostMapping
-    public ResponseEntity<ApiResponse<PassengerResponse>> createPassenger(
-            @Valid @RequestBody CreatePassengerRequest request) {
-        Passenger passenger = passengerService.createPassenger(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(convertToResponse(passenger), "Passenger profile created successfully"));
-    }
+  
+    private final PassengerService passengerService;
 
     // Returns the passenger profile matching the given passenger ID.
     @Operation(summary = "Get passenger by ID", description = "Returns the passenger profile matching the given passenger ID.")

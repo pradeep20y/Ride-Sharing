@@ -6,6 +6,8 @@ import com.ridesharing.project.dto.response.LoginResponse;
 import com.ridesharing.project.entity.User;
 import com.ridesharing.project.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,19 +28,15 @@ import com.prad.starter.jwt.JwtUtil;
 
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    private AuthenticationManager authenticationManager;
-    private UserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
-    private JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public UserService(JwtUtil jwtUtil, AuthenticationManager authenticationManager,UserRepository userRepository, PasswordEncoder passwordEncoder){
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-        this.authenticationManager = authenticationManager;
-    }
+ 
 
     // Create new user
     public User createUser(UserDTO request) {
@@ -56,7 +54,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-     public LoginResponse authenticate(LoginRequest loginRequest) {
+/*      public LoginResponse authenticate(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getIdentifier(),
                         loginRequest.getPassword()));
@@ -71,7 +69,7 @@ public class UserService {
 
         return new LoginResponse(jwtToken);
     }
-
+ */
 
     // Get user by ID
     public Optional<User> getUserById(String id) {

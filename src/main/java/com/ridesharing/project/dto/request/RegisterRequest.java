@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Request payload for one-shot driver registration")
-public class RegisterDriverRequest {
+public class RegisterRequest {
 
     // ── User fields ───────────────────────────────────────────────────────────
 
@@ -58,7 +58,6 @@ public class RegisterDriverRequest {
 
     // ── Driver / Vehicle fields ───────────────────────────────────────────────
 
-    @NotBlank(message = "License plate is required")
     @Size(min = 3, max = 20, message = "License plate must be between 3 and 20 characters")
     @Pattern(regexp = "^[A-Z0-9]+$",
              message = "License plate must contain only uppercase letters and numbers (e.g., TN01AB1234)")
@@ -66,8 +65,7 @@ public class RegisterDriverRequest {
             example = "TN01AB1234", requiredMode = Schema.RequiredMode.REQUIRED)
     private String licensePlate;
 
-    @NotBlank(message = "Vehicle type is required")
-    @Pattern(regexp = "^(ECONOMY|COMFORT|PREMIUM)$",
+        @Pattern(regexp = "^(ECONOMY|COMFORT|PREMIUM)$",
              message = "Vehicle type must be one of: ECONOMY, COMFORT, PREMIUM")
     @Schema(description = "Category of vehicle",
             example = "ECONOMY",

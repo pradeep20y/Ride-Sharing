@@ -34,7 +34,7 @@ public class AuthResponse {
 
     @Schema(description = "Generated UUID of the driver profile — present only for driver registrations",
             example = "660e8400-e29b-41d4-a716-446655440001")
-    private String driverId;  // null for passengers, omitted from JSON via @JsonInclude
+    private String profileId;  // null for passengers, omitted from JSON via @JsonInclude
 
     @Schema(description = "Human-readable result message", example = "Driver registered successfully")
     private String message;

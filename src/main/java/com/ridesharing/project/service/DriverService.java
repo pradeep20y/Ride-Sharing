@@ -1,6 +1,6 @@
 package com.ridesharing.project.service;
 
-import com.ridesharing.project.dto.request.RegisterDriverRequest;
+import com.ridesharing.project.dto.request.RegisterRequest;
 import com.ridesharing.project.dto.request.SetDriverStatusRequest;
 import com.ridesharing.project.dto.request.UpdateDriverRatingRequest;
 import com.ridesharing.project.dto.request.UpdateLocationRequest;
@@ -13,6 +13,9 @@ import com.ridesharing.project.exception.BusinessException;
 import com.ridesharing.project.exception.ResourceNotFoundException;
 import com.ridesharing.project.repository.DriverRepository;
 import com.ridesharing.project.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,6 +50,7 @@ import java.util.stream.Collectors;
  *       totalEarnings is sourced from settled payment records.
  */
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)  // default to read-only; mutating methods override this
 public class DriverService {
 
@@ -57,13 +61,8 @@ public class DriverService {
     //  - simplifies unit testing (no reflection required)
     private final DriverRepository driverRepository;
     private final UserRepository   userRepository;
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public DriverService(DriverRepository driverRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.driverRepository = driverRepository;
-        this.userRepository   = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
 
     // ── Method ───────────────────────────────────────────────────────────────────
@@ -80,62 +79,7 @@ public class DriverService {
      * @return AuthResponse containing the new user's id and basic profile
      * @throws BusinessException if the email or license plate is already taken
      */
-    @Transactional
-    public AuthResponse registerDriver(RegisterDriverRequest request) {
-        log.info("Driver registration attempt: email={}, licensePlate={}",
-                request.getEmail(), request.getLicensePlate());
-
-        // ── Duplicate checks (service layer, before hitting DB constraints) ───
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BusinessException(
-                "Email '" + request.getEmail() + "' is already registered. "
-            + "Please use a different email or log in.");
-        }
-
-        if (driverRepository.existsByLicensePlate(request.getLicensePlate())) {
-            throw new BusinessException(
-                "License plate '" + request.getLicensePlate() + "' is already "
-            + "registered to another driver.");
-        }
-
-        // ── Step 1: Create the User account ──────────────────────────────────
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // never store plain-text
-        user.setUserType("DRIVER");
-        user.setRating(5.0);
-
-        User savedUser = userRepository.save(user);
-        log.info("User account created: userId={}", savedUser.getId());
-
-        // ── Step 2: Create the Driver profile ────────────────────────────────
-        Driver driver = new Driver();
-        driver.setUser(savedUser);
-        driver.setLicensePlate(request.getLicensePlate());
-        driver.setVehicleType(request.getVehicleType());
-        driver.setStatus("OFFLINE");      // all new drivers start offline
-        driver.setRating(5.0);
-        driver.setTotalEarnings(0.0);
-        driver.setTotalRides(0);
-        driver.setAcceptanceRate(100.0);
-
-        Driver savedDriver = driverRepository.save(driver);
-        log.info("Driver profile created: driverId={}", savedDriver.getId());
-
-        // ── Step 3: Build and return response ────────────────────────────────
-        return AuthResponse.builder()
-                .userId(savedUser.getId())
-                .name(savedUser.getName())
-                .email(savedUser.getEmail())
-                .phone(savedUser.getPhone())
-                .userType(savedUser.getUserType())
-                .driverId(savedDriver.getId())
-                .message("Driver registered successfully")
-                .build();
-    }
-
+    
 
     // ── Create ────────────────────────────────────────────────────────────────
 

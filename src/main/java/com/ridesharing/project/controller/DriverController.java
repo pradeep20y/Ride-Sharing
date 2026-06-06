@@ -1,6 +1,5 @@
 package com.ridesharing.project.controller;
 
-import com.ridesharing.project.dto.request.RegisterDriverRequest;
 import com.ridesharing.project.dto.request.SetDriverStatusRequest;
 import com.ridesharing.project.dto.request.UpdateDriverRatingRequest;
 import com.ridesharing.project.dto.request.UpdateLocationRequest;
@@ -15,13 +14,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +47,7 @@ import java.util.List;
  *       their own profile, and only admins can delete or manually set ratings.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/drivers")
 @CrossOrigin(origins = "*")
 @Tag(name = "Drivers", description = "Operations for managing driver profiles — registration, status, location, vehicle, and ratings")
@@ -55,44 +55,9 @@ public class DriverController {
 
     private final DriverService driverService;
 
-    public DriverController(DriverService driverService) {
-        this.driverService = driverService;
-    }
 
-    // ── Create ────────────────────────────────────────────────────────────────
 
-    /**
-     * Registers a new driver profile linked to an existing user account.
-     * The driver starts in OFFLINE status and will appear in ride queries
-     * only after they set their status to ONLINE.
-     *
-     * @param request validated registration payload (userId, licensePlate, vehicleType)
-     * @return 201 Created with the new driver's full profile
-     */
- /*    @PostMapping
-    @Operation(
-        summary = "Register a new driver",
-        description = "Creates a driver profile for an existing user account. "
-                    + "The user must not already have a driver profile. "
-                    + "The license plate must be globally unique."
-    )
-    @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Driver registered successfully"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation failed — check fieldErrors in the response",
-            content = @Content(schema = @Schema(implementation = com.ridesharing.project.dto.response.ErrorResponse.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Referenced user not found",
-            content = @Content(schema = @Schema(implementation = com.ridesharing.project.dto.response.ErrorResponse.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "License plate already in use, or user already has a driver profile",
-            content = @Content(schema = @Schema(implementation = com.ridesharing.project.dto.response.ErrorResponse.class)))
-    })
-    public ResponseEntity<ApiResponse<DriverResponse>> registerDriver(
-            @Valid @RequestBody RegisterDriverRequest request) {
-
-        DriverResponse driver = driverService.registerDriver(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(driver, "Driver registered successfully"));
-    }
- */
+   
     // ── Read ──────────────────────────────────────────────────────────────────
 
     /**
