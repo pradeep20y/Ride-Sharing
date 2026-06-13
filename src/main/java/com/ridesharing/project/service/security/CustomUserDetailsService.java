@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import com.ridesharing.project.entity.User;
 import com.ridesharing.project.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    public UserRepository userRepository;
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
 
 @Override
 public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {

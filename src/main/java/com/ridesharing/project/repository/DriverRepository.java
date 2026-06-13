@@ -3,6 +3,8 @@ package com.ridesharing.project.repository;
 import com.ridesharing.project.entity.Driver;
 import com.ridesharing.project.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -27,4 +29,7 @@ public interface DriverRepository extends JpaRepository<Driver, String> {
 
     // Check if license plate exists
     boolean existsByLicensePlate(String licensePlate);
+
+    @Query("SELECT d FROM Driver d WHERE d.user.phone = :phone")
+    Optional<Driver> findByUserPhone(@Param("phone") String phone);
 }
