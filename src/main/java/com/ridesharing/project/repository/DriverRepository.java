@@ -32,4 +32,6 @@ public interface DriverRepository extends JpaRepository<Driver, String> {
 
     @Query("SELECT d FROM Driver d WHERE d.user.phone = :phone")
     Optional<Driver> findByUserPhone(@Param("phone") String phone);
+
+    Optional<Driver> findByUser_Id(String userId);
 }

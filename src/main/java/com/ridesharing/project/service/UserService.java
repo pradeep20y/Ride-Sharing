@@ -1,40 +1,27 @@
 package com.ridesharing.project.service;
 
 import com.ridesharing.project.dto.UserDTO;
-import com.ridesharing.project.dto.request.LoginRequest;
-import com.ridesharing.project.dto.response.LoginResponse;
 import com.ridesharing.project.entity.User;
 import com.ridesharing.project.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import com.prad.starter.jwt.JwtUtil;
 
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
 
  
 
@@ -54,22 +41,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-/*      public LoginResponse authenticate(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getIdentifier(),
-                        loginRequest.getPassword()));
 
-        User user = userRepository.findByPhone(loginRequest.getIdentifier())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String jwtToken = jwtUtil.generateTokenFromUsername(userDetails);
-
-
-        return new LoginResponse(jwtToken);
-    }
- */
 
     // Get user by ID
     public Optional<User> getUserById(String id) {

@@ -20,4 +20,6 @@ public interface PassengerRepository extends JpaRepository<Passenger, String> {
 
     // Checks whether a passenger profile already exists for the given user.
     boolean existsByUser(User user);
+
+    Optional<Passenger> findByUser_Id(String userId);
 }

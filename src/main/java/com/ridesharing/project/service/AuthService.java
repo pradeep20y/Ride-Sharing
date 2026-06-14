@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.prad.starter.jwt.JwtUtil;
+import com.ridesharing.project.controller.UserMeResponse;
 import com.ridesharing.project.dto.request.LoginRequest;
 import com.ridesharing.project.dto.request.RegisterRequest;
 import com.ridesharing.project.dto.response.AuthResponse;
@@ -176,6 +177,32 @@ private final DriverRepository driverRepository;
                 .profileId(savedPassenger.getId())
                 .message("Passenger registered successfully")
                 .build();
+    }
+
+    public UserMeResponse getCurrentUserDetails(String phone) {
+            User user = userRepository.findByPhone(phone)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            UserMeResponse response = new UserMeResponse();
+            response.setUserId(user.getId());
+            response.setName(user.getName());
+            response.setEmail(user.getEmail());
+            response.setPhone(user.getPhone());
+            response.setUserType(user.getUserType());
+
+            if ("DRIVER".equalsIgnoreCase(user.getUserType())) {
+                Driver driver = driverRepository.findByUser_Id(user.getId())
+                        .orElseThrow(() -> new RuntimeException("Driver profile not found"));
+                response.setProfileId(driver.getId());
+                response.setRating(driver.getRating());
+            } else {
+                Passenger passenger = passengerRepository.findByUser_Id(user.getId())
+                        .orElseThrow(() -> new RuntimeException("Passenger profile not found"));
+                response.setProfileId(passenger.getId());
+                response.setRating(user.getRating());
+        }
+
+            return response;
     }
 
 }

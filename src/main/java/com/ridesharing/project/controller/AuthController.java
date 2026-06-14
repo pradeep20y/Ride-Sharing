@@ -2,11 +2,12 @@ package com.ridesharing.project.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import com.ridesharing.project.dto.request.LoginRequest;
 import com.ridesharing.project.dto.request.RegisterRequest;
@@ -56,6 +57,13 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(response, "passenger registered successfully"));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserMeResponse> getCurrentUser(Authentication authentication) {
+        String phone = authentication.getName(); // Spring Security sets this from JWT subject
+        UserMeResponse response = authService.getCurrentUserDetails(phone);
+        return ResponseEntity.ok(response);
     }
 
 
