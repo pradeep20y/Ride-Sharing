@@ -2,6 +2,7 @@ package com.ridesharing.project.service;
 
 import com.ridesharing.project.dto.response.DriverAssignedResponse;
 import com.ridesharing.project.dto.response.LocationTrackingResponse;
+import com.ridesharing.project.dto.response.RideConfirmedResponse;
 import com.ridesharing.project.dto.response.RideOfferResponse;
 import com.ridesharing.project.entity.Driver;
 import com.ridesharing.project.entity.Ride;
@@ -84,6 +85,21 @@ public class RideNotificationService {
 
         // Passenger's personal topic — only they receive the driver assignment details
         messagingTemplate.convertAndSend("/topic/passenger/" + passengerId, response);
+    }
+
+    public void notifyDriverRideConfirmed(String driverId, Ride ride) {
+        RideConfirmedResponse response = RideConfirmedResponse.builder()
+                .status("RIDE_CONFIRMED")
+                .rideId(ride.getId())
+                .pickupLatitude(ride.getRideRequest().getPickupLatitude())
+                .pickupLongitude(ride.getRideRequest().getPickupLongitude())
+                .pickupAddress(ride.getRideRequest().getPickupAddress())
+                .dropoffLatitude(ride.getRideRequest().getDropoffLatitude())
+                .dropoffLongitude(ride.getRideRequest().getDropoffLongitude())
+                .dropoffAddress(ride.getRideRequest().getDropoffAddress())
+                .build();
+
+            messagingTemplate.convertAndSend("/topic/driver/" + driverId, response);
     }
 
     // Pushes a live GPS coordinate update to the passenger tracking a specific ride.

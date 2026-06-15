@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RideAcceptRequest {
+public class 
+RideAcceptRequest {
 
     @NotBlank(message = "Request ID is required")
     private String requestId;

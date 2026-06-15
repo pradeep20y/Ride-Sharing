@@ -64,6 +64,9 @@ public class WebSocketController {
             rideNotificationService.notifyPassengerDriverAssigned(
                     ride.getPassenger().getId(), ride, ride.getDriver());
 
+            // NEW: tell the driver their accept succeeded and give them the rideId
+            rideNotificationService.notifyDriverRideConfirmed(request.getDriverId(), ride);
+            
         } catch (OptimisticLockException e) {
             // The @Version conflict means this driver's accept arrived after another transaction
             // (an expiry event or another accept) already changed the RideRequest state.
