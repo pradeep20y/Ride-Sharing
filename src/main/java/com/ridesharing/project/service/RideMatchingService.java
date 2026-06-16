@@ -14,7 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -41,6 +44,10 @@ public class RideMatchingService {
     // Redis key prefix for offer timer keys — format: "offer:{requestId}"
     // All other Redis keys in the system use different prefixes so this namespace is safe
     private static final String OFFER_KEY_PREFIX = "offer:";
+
+    // Redis Set key prefix for tracking drivers who have already been offered this ride
+    // Format: "rejected_drivers:{requestId}"
+    private static final String REJECTED_DRIVERS_KEY_PREFIX = "rejected_drivers:";
 
     private final RideRequestRepository rideRequestRepository;
     private final DriverRepository driverRepository;
@@ -126,7 +133,7 @@ public class RideMatchingService {
         // Without this deletion, the key would expire after 10 seconds and OfferExpiryListener
         // would try to advance to the next driver even though this driver already accepted.
         redisTemplate.delete(OFFER_KEY_PREFIX + requestId);
-
+        redisTemplate.delete(REJECTED_DRIVERS_KEY_PREFIX + requestId);
         // Create the Ride record that links the driver, passenger, and request together
         Ride ride = new Ride();
         ride.setRideRequest(request);
@@ -167,7 +174,9 @@ public class RideMatchingService {
         // Delete the Redis key immediately — explicit rejection means no need to wait for expiry.
         // This prevents OfferExpiryListener from firing and duplicating the advancement logic.
         redisTemplate.delete(OFFER_KEY_PREFIX + requestId);
-
+        
+        redisTemplate.opsForSet().add(REJECTED_DRIVERS_KEY_PREFIX + requestId, driverId);
+        redisTemplate.expire(REJECTED_DRIVERS_KEY_PREFIX + requestId, 120, TimeUnit.SECONDS);
         // Advance to the next eligible driver (or cancel if all attempts exhausted)
         moveToNextDriver(request);
     }
@@ -195,6 +204,12 @@ public class RideMatchingService {
         // The race-condition path (driver sent ACCEPT just as the key expired) is handled
         // separately in WebSocketController via the OptimisticLockException catch block.
         if (request.getOfferedToDriverId() != null) {
+            redisTemplate.opsForSet().add(
+                REJECTED_DRIVERS_KEY_PREFIX + request.getId(),
+                request.getOfferedToDriverId()
+            );
+            redisTemplate.expire(REJECTED_DRIVERS_KEY_PREFIX + request.getId(), 120, TimeUnit.SECONDS);
+
             rideNotificationService.notifyDriverOfferExpired(request.getOfferedToDriverId());
         }
 
@@ -204,7 +219,7 @@ public class RideMatchingService {
             request.setOfferedToDriverId(null);
             request.setOfferExpiresAt(null);
             rideRequestRepository.save(request);
-
+            redisTemplate.delete(REJECTED_DRIVERS_KEY_PREFIX + request.getId());
             rideNotificationService.notifyPassengerRideCancelled(
                     request.getPassenger().getId(),
                     "No drivers were available to accept your ride after "
@@ -228,6 +243,14 @@ public class RideMatchingService {
     // the MySQL state is still consistent and OfferExpirationJob can recover the offer.
     @Transactional
     private void offerToNextDriver(RideRequest request) {
+
+        // fetch all drivers who have already been offered this ride (rejected or timed out)
+        Set<String> excludedDriverIds = redisTemplate.opsForSet()
+                .members(REJECTED_DRIVERS_KEY_PREFIX + request.getId());
+
+        if (excludedDriverIds == null) excludedDriverIds = new HashSet<>();
+
+        final Set<String> excluded = excludedDriverIds;
         // Query Redis GEO for all drivers within the default 5 km radius of the pickup point
         List<NearbyDriverResponse> nearbyDrivers = locationService.findNearbyDrivers(
                 request.getPickupLatitude(), request.getPickupLongitude());
@@ -236,9 +259,9 @@ public class RideMatchingService {
         // This prevents immediately re-offering to a driver who just timed out.
         // On the very first call offeredToDriverId is null so no driver is excluded.
         List<NearbyDriverResponse> eligibleDrivers = nearbyDrivers.stream()
-                .filter(d -> !d.getDriverId().equals(request.getOfferedToDriverId()))
+                .filter(d -> !excluded.contains(d.getDriverId()))
                 .collect(Collectors.toList());
-
+        
         // If no drivers are in the Redis GEO index near the pickup, cancel immediately
         if (eligibleDrivers.isEmpty()) {
             request.setStatus(RideRequestStatus.CANCELLED);
@@ -250,20 +273,27 @@ public class RideMatchingService {
                     "No drivers are available in your area right now. Please try again later.");
             return;
         }
+        List<String> driverIds = eligibleDrivers.stream()
+                                .map(NearbyDriverResponse::getDriverId)
+                                .collect(Collectors.toList());
+
+        List<Driver> drivers = driverRepository.findAllById(driverIds);
+
+        Map<String, Driver> driverMap = drivers.stream()
+        .collect(Collectors.toMap(Driver::getId, d -> d));
 
         // Score each eligible driver using distance (60%) and rating (40%).
         // Driver rating is loaded from MySQL because NearbyDriverResponse only carries
         // the driver ID, distance, and coordinates from the Redis GEO query.
+
         NearbyDriverResponse bestDriverResponse = null;
         Driver bestDriver = null;
         double bestScore = -1.0;
 
         for (NearbyDriverResponse nearby : eligibleDrivers) {
             // Skip drivers that exist in Redis but have been deleted from MySQL
-            Driver driver = driverRepository.findById(nearby.getDriverId()).orElse(null);
-            if (driver == null) {
-                continue;
-            }
+            Driver driver = driverMap.get(nearby.getDriverId()); // no DB call
+            if (driver == null) continue; // deleted from MySQL, skip
 
             double score = calculateScore(nearby.getDistanceInKm(), driver.getRating());
             if (score > bestScore) {
@@ -279,6 +309,7 @@ public class RideMatchingService {
             request.setOfferedToDriverId(null);
             request.setOfferExpiresAt(null);
             rideRequestRepository.save(request);
+            redisTemplate.delete(REJECTED_DRIVERS_KEY_PREFIX + request.getId());
             rideNotificationService.notifyPassengerRideCancelled(
                     request.getPassenger().getId(),
                     "No drivers are available in your area right now. Please try again later.");
