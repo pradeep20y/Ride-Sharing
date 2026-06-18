@@ -1,5 +1,6 @@
 package com.ridesharing.project.service;
 
+import com.ridesharing.project.dto.request.RideRejectRequest;
 import com.ridesharing.project.dto.response.NearbyDriverResponse;
 import com.ridesharing.project.entity.Driver;
 import com.ridesharing.project.entity.Ride;
@@ -74,6 +75,13 @@ public class RideMatchingService {
     // Validates that the request is in OPEN state (it was just created so this is a safety guard),
     // then delegates to offerToNextDriver to score nearby drivers and send the first offer.
     // Guard exists to prevent accidental re-triggering if called on an already-active request.
+
+    public void searchDriver(String requestId) {
+        RideRequest request = rideRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", requestId));
+        sendInitialOffer(request);
+    }
+
     @Transactional
     public void sendInitialOffer(RideRequest request) {
         // Guard: matching can only start from the initial OPEN state
@@ -180,6 +188,42 @@ public class RideMatchingService {
         // Advance to the next eligible driver (or cancel if all attempts exhausted)
         moveToNextDriver(request);
     }
+    
+    @Transactional
+    public void driverCancel(String requestId, String driverId) {
+
+        RideRequest request = rideRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", requestId));
+        
+                Ride ride = rideRepository.findByRideRequest_Id(requestId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Ride", "rideRequestId", requestId));
+
+        String offeredDriverId = ride.getDriver().getId();
+        if (!driverId.equals(offeredDriverId)) {
+            System.out.println("Driver id not equal");
+                return;
+        } 
+        if (request.getStatus() == RideRequestStatus.MATCHED) {
+            request.setStatus(RideRequestStatus.OPEN);
+            request.setOfferedToDriverId(null);
+            request.setOfferExpiresAt(null);
+            rideRequestRepository.save(request);
+            redisTemplate.opsForSet().add(REJECTED_DRIVERS_KEY_PREFIX + requestId, driverId);
+
+            System.out.println("Notifying passenger: " + request.getPassenger().getId());
+            rideNotificationService.notifyPassengerRideCancelledAfterRideSuccess(
+                    request.getPassenger().getId(),
+                    "Driver declined the ride offer");
+            
+            return;        
+        }
+        else {
+             throw new IllegalStateException("Cannot cancel ride in status: " + request.getStatus());
+        }
+
+    }
+
+
 
     // Advances the matching state machine to the next eligible driver after a timeout or rejection.
     // Called by OfferExpiryListener (Redis TTL expired), driverRejected (explicit reject),

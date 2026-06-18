@@ -128,6 +128,13 @@ public class RideNotificationService {
         );
     }
 
+    public void notifyPassengerRideCancelledAfterRideSuccess(String passengerId, String reason) {
+       messagingTemplate.convertAndSend(
+                "/topic/passenger/" + passengerId,
+                Map.of("status", "DRIVER_CANCELLED", "reason", reason)
+       );
+    }
+
     // Notifies a driver that the offer they tried to accept is no longer available.
     // Called by WebSocketController when it catches an OptimisticLockException — this means
     // another thread (expiry listener or another accept message) already advanced the state

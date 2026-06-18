@@ -22,4 +22,6 @@ public interface RideRepository extends JpaRepository<Ride, String> {
 
     // Finds the ride associated with a particular ride request.
     Optional<Ride> findByRideRequest(RideRequest rideRequest);
+
+    Optional<Ride> findByRideRequest_Id(String rideRequestId);
 }

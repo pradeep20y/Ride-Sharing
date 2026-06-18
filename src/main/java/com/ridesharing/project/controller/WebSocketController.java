@@ -87,6 +87,13 @@ public class WebSocketController {
         rideMatchingService.driverRejected(request.getRequestId(), request.getDriverId());
     }
 
+    @MessageMapping("/ride/cancel")
+    public void cancelRide (RideRejectRequest request) {
+        rideMatchingService.driverCancel(request.getRequestId(),request.getDriverId());
+    }
+
+
+
     // Receives a live GPS coordinate update from a driver during an active ride,
     // sent to /app/ride/{rideId}/location.
     // Verifies the ride is in an active state (Assigned or InProgress) via RideService,
