@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +33,6 @@ public class RideRequestController {
 
     
         private final RideRequestService rideRequestService;
-        private final RideMatchingService rideMatchingService;    
 
         // Creates a new ride request with automatic fare, distance, and duration estimation from coordinates.
         @Operation(
@@ -69,11 +67,6 @@ public class RideRequestController {
                 RideRequest rideRequest = rideRequestService.createRideRequest(request);
                 return ResponseEntity.status(HttpStatus.CREATED)
                         .body(ApiResponse.success(convertToResponse(rideRequest), "Ride request created successfully"));
-        }
-
-        @PostMapping("/search-driver")
-        public void searchDriver(String requestId) {
-                rideMatchingService.searchDriver(requestId);
         }
 
         // Returns the ride request matching the given request ID.

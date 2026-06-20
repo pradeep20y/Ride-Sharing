@@ -79,7 +79,7 @@ public class RideMatchingService {
     public void searchDriver(String requestId) {
         RideRequest request = rideRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", requestId));
-        sendInitialOffer(request);
+        offerToNextDriver(request);
     }
 
     @Transactional
@@ -195,8 +195,8 @@ public class RideMatchingService {
         RideRequest request = rideRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", requestId));
         
-                Ride ride = rideRepository.findByRideRequest_Id(requestId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Ride", "rideRequestId", requestId));
+        Ride ride = rideRepository.findByRideRequest_Id(requestId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ride", "rideRequestId", requestId));
 
         String offeredDriverId = ride.getDriver().getId();
         if (!driverId.equals(offeredDriverId)) {
@@ -204,7 +204,13 @@ public class RideMatchingService {
                 return;
         } 
         if (request.getStatus() == RideRequestStatus.MATCHED) {
-            request.setStatus(RideRequestStatus.OPEN);
+
+            rideRepository.delete(ride);
+            Driver cancellingDriver = ride.getDriver();
+            cancellingDriver.setStatus("ONLINE");
+            driverRepository.save(cancellingDriver);
+
+            request.setStatus(RideRequestStatus.OFFER_PENDING);
             request.setOfferedToDriverId(null);
             request.setOfferExpiresAt(null);
             rideRequestRepository.save(request);
@@ -214,6 +220,8 @@ public class RideMatchingService {
             rideNotificationService.notifyPassengerRideCancelledAfterRideSuccess(
                     request.getPassenger().getId(),
                     "Driver declined the ride offer");
+
+            offerToNextDriver(request);        
             
             return;        
         }
