@@ -141,7 +141,7 @@ public class RideMatchingService {
         // Without this deletion, the key would expire after 10 seconds and OfferExpiryListener
         // would try to advance to the next driver even though this driver already accepted.
         redisTemplate.delete(OFFER_KEY_PREFIX + requestId);
-        redisTemplate.delete(REJECTED_DRIVERS_KEY_PREFIX + requestId);
+        // redisTemplate.delete(REJECTED_DRIVERS_KEY_PREFIX + requestId);
         // Create the Ride record that links the driver, passenger, and request together
         Ride ride = new Ride();
         ride.setRideRequest(request);
@@ -306,7 +306,9 @@ public class RideMatchingService {
         // Query Redis GEO for all drivers within the default 5 km radius of the pickup point
         List<NearbyDriverResponse> nearbyDrivers = locationService.findNearbyDrivers(
                 request.getPickupLatitude(), request.getPickupLongitude());
-
+                
+        System.out.println("Nearby drivers found: " + nearbyDrivers.size() + " -> " + 
+        nearbyDrivers.stream().map(NearbyDriverResponse::getDriverId).collect(Collectors.toList()));    
         // Filter out the driver who currently holds or last held the offer.
         // This prevents immediately re-offering to a driver who just timed out.
         // On the very first call offeredToDriverId is null so no driver is excluded.

@@ -146,4 +146,24 @@ public class RideNotificationService {
                 Map.of("status", "OFFER_EXPIRED", "message", "Offer is no longer available")
         );
     }
+
+    public void notifyPassengerDriverArrived(String passengerId, String rideId) {
+        messagingTemplate.convertAndSend(
+                "/topic/passenger/" + passengerId,
+                Map.of("status", "DRIVER_ARRIVED", "rideId", rideId)
+        );
+    }
+
+    public void notifyPassengerRideCompleted(String passengerId, String rideId) {
+        messagingTemplate.convertAndSend(
+                "/topic/passenger/" + passengerId,
+                Map.of("status", "RIDE_COMPLETED", "rideId", rideId)
+        );
+    }
+    public void notifyPassengerRideStarted(String passengerId, String rideId) {
+    messagingTemplate.convertAndSend(
+            "/topic/passenger/" + passengerId,
+            Map.of("status", "RIDE_IN_PROGRESS", "rideId", rideId)
+    );
+}
 }

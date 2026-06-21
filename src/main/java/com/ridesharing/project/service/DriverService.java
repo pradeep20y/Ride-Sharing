@@ -61,7 +61,7 @@ public class DriverService {
     //  - simplifies unit testing (no reflection required)
     private final DriverRepository driverRepository;
     private final UserRepository   userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final LocationService locationService;
 
 
 
@@ -252,8 +252,14 @@ public class DriverService {
 
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", driverId));
-
+        if ("OFFLINE".equals(request.getStatus())) {
+            // Stop this driver from appearing in nearby-driver searches the instant
+            // they go offline, rather than waiting for a stale GEO entry to confuse matching.
+            locationService.removeDriverLocation(driverId);
+        }
         driver.setStatus(request.getStatus());
+        System.out.println("DRIVER COUNTTTTTTTTTTTTTTT "+
+        locationService.getOnlineDriverCount());
         return toResponse(driverRepository.save(driver));
     }
 

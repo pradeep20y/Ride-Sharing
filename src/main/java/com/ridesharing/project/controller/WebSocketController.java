@@ -9,9 +9,13 @@ import com.ridesharing.project.service.RideMatchingService;
 import com.ridesharing.project.service.RideNotificationService;
 import com.ridesharing.project.service.RideService;
 import jakarta.persistence.OptimisticLockException;
+
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
 // Handles all inbound WebSocket (STOMP) messages from connected drivers.
@@ -113,4 +117,50 @@ public class WebSocketController {
         rideNotificationService.pushLocationToPassenger(
                 rideId, location.getLatitude(), location.getLongitude());
     }
+
+// ─── Driver has arrived at pickup ──────────────────────────────────────────
+    @MessageMapping("/ride/{rideId}/arrived")
+    public void handleDriverArrived(@DestinationVariable String rideId,
+                                    @Payload Map<String, Object> payload) {
+        // Resolve passengerId server-side — never trust the client to supply it,
+        // since a malicious/buggy driver client could spoof another passenger's id.
+        Ride ride = rideService.getRideIfActive(rideId); // or however Ride is currently looked up elsewhere in this controller
+
+        
+        rideNotificationService.notifyPassengerDriverArrived(
+            ride.getPassenger().getId(), // adjust accessor to match your Ride/RideRequest entity
+            rideId
+        );
+    }
+    // ─── Driver starts the ride (passenger is in the car) ──────────────────────
+    @MessageMapping("/ride/start")
+    public void handleRideStart(@Payload Map<String, Object> payload) {
+        String rideId = payload.get("rideId").toString();
+
+        // Assigned -> InProgress. Throws BusinessException if not currently Assigned
+        // (e.g. driver double-taps Start, or ride was already cancelled).
+        Ride ride = rideService.startRide(rideId);
+
+        rideNotificationService.notifyPassengerRideStarted(
+            ride.getPassenger().getId(),
+            rideId
+        );
+    }
+
+// ─── Ride completed ─────────────────────────────────────────────────────────
+    @MessageMapping("/ride/complete")
+    public void handleRideComplete(@Payload Map<String, Object> payload) {
+        String rideId = payload.get("rideId").toString();
+
+        // Persist completion FIRST — mirrors the ordering note in notifyPassengerRideCompleted's
+        // javadoc above. If this throws (e.g. OptimisticLockException because the ride was
+        // already cancelled/completed by another thread), no notification goes out.
+        Ride ride = rideService.completeRide(rideId);
+
+        rideNotificationService.notifyPassengerRideCompleted(
+            ride.getPassenger().getId(),
+            rideId.toString()
+        );
+    }
+
 }
